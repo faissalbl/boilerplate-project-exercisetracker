@@ -16,8 +16,6 @@ module.exports.getExercises = async function(userId, from, to, limit) {
         }
     }
 
-    console.log(dateFilter)
-
     const query = Exercise.find({ 
         user: userId,
         ...dateFilter

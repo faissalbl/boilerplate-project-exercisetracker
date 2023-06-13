@@ -42,7 +42,7 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
     try {
         const result = await saveExercise(userId, description, duration, date)
         res.json({ 
-            _id: result._id, 
+            _id: result.user._id, 
             username: result.user.username, 
             description: result.description, 
             duration: result.duration, 
@@ -79,9 +79,9 @@ app.get('/api/users/:_id/logs', async (req, res, next) => {
         })
 
         res.json({
+            // _id: user._id,
             username: user.username,
             count: exercises.length,
-            _id: userId,
             log: [ ...exercises ]
         });
     } catch(err) {
