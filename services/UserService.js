@@ -1,5 +1,9 @@
 const User = require('../models/User')
 
+module.exports.getUser = async function(id) {
+    return await User.findById(id).select('username')
+}
+
 module.exports.getUsers = async function() {
     return await User.find().select([ '_id', 'username' ])
 }

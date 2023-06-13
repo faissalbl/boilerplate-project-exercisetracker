@@ -3,7 +3,8 @@ const app = express()
 const cors = require('cors')
 require('dotenv').config()
 const bodyParser = require('body-parser')
-const { getUsers, saveUser } = require('./services/UserService')
+const { getUser, getUsers, saveUser } = require('./services/UserService')
+const { getExercises, saveExercise } = require('./services/ExerciseService')
 
 const databaseService = require('./services/DatabaseService')
 databaseService.connect()
@@ -34,9 +35,53 @@ app.route('/api/users')
         }
     })
 
+app.post('/api/users/:_id/exercises', async (req, res, next) => {
+    const userId = req.params._id
+    const { description, duration, date } = req.body
+
+    try {
+        const result = await saveExercise(userId, description, duration, date)
+        res.json({ 
+            _id: result._id, 
+            username: result.user.username, 
+            description: result.description, 
+            duration: result.duration, 
+            date: result.date.toDateString() 
+        })
+    } catch(err) {
+        next(err)
+    }
+})
+
+app.get('/api/users/:_id/logs', async (req, res, next) => {
+    try {
+        const userId = req.params._id
+        const user = await getUser(userId)
+
+        let exercises = await getExercises(userId)
+        exercises = [...exercises].map(exercise => {
+            const { description, duration, date } = exercise
+            return {
+                description,
+                duration,
+                date: date.toDateString()
+            }
+        })
+
+        res.json({
+            username: user.username,
+            count: exercises.length,
+            _id: userId,
+            log: [ ...exercises ]
+        });
+    } catch(err) {
+        next(err)
+    }
+})
+
 app.use((err, req, res, next) => {
     res.status = err.status || 500;
-    res.json({ error: err.message || "Something broke!" });
+    res.json({ error: err.message || "Something broke!" })
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
