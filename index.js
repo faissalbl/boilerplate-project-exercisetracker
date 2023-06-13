@@ -36,24 +36,34 @@ app.route('/api/users')
     })
 
 app.post('/api/users/:_id/exercises', async (req, res, next) => {
+    console.log('request', req.params, req.body)
+
     const userId = req.params._id
-    const { description, duration, date } = req.body
+    const { description, duration } = req.body
+    const date = req.body.date || new Date()
 
     try {
-        const result = await saveExercise(userId, description, duration, date)
-        res.json({ 
+        let result = await saveExercise(userId, description, duration, date)
+
+        result = { 
             _id: result.user._id, 
             username: result.user.username, 
             description: result.description, 
             duration: result.duration, 
             date: result.date.toDateString() 
-        })
+        }
+
+        console.log('response', result)
+
+        res.json(result)
     } catch(err) {
+        console.error(err)
         next(err)
     }
 })
 
 app.get('/api/users/:_id/logs', async (req, res, next) => {
+    console.log('request', req.params, req.query)
     try {
         const userId = req.params._id
 
@@ -78,13 +88,18 @@ app.get('/api/users/:_id/logs', async (req, res, next) => {
             }
         })
 
-        res.json({
-            // _id: user._id,
+        const result = {
+            _id: user._id,
             username: user.username,
             count: exercises.length,
             log: [ ...exercises ]
-        });
+        }
+
+        console.log('response', result)
+
+        res.json(result);
     } catch(err) {
+        console.error(err)
         next(err)
     }
 })
