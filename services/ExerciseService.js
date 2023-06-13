@@ -1,10 +1,32 @@
 const Exercise = require('../models/Exercise')
 
-module.exports.getExercises = async function(userId) {
-    return (
-        await Exercise.find({ user: userId })
-            .select([ 'user', 'description', 'duration', 'date' ])
-    )
+module.exports.getExercises = async function(userId, from, to, limit) {
+    const fromFilter = {}
+    const toFilter = {}
+    if (from) fromFilter.$gte = from
+    if (to) toFilter.$lte = to
+
+    let dateFilter = {}
+    if (from || to) {
+        dateFilter = {
+            date: {
+                ...fromFilter,
+                ...toFilter,
+            }
+        }
+    }
+
+    console.log(dateFilter)
+
+    const query = Exercise.find({ 
+        user: userId,
+        ...dateFilter
+    })
+    .select([ 'user', 'description', 'duration', 'date' ])
+
+    if (limit) query.limit(limit)
+
+    return await query
 }
 
 module.exports.saveExercise = async function(userId, description, sDuration, sDate) {

@@ -56,9 +56,19 @@ app.post('/api/users/:_id/exercises', async (req, res, next) => {
 app.get('/api/users/:_id/logs', async (req, res, next) => {
     try {
         const userId = req.params._id
+
+        let from = req.query.from
+        from = from ? new Date(from) : from
+
+        let to = req.query.to
+        to = to ? new Date(to) : to
+
+        let limit = req.query.limit
+        limit = limit ? parseInt(limit) : limit
+
         const user = await getUser(userId)
 
-        let exercises = await getExercises(userId)
+        let exercises = await getExercises(userId, from, to, limit)
         exercises = [...exercises].map(exercise => {
             const { description, duration, date } = exercise
             return {
